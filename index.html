@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Registro de Comisiones</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px 20px;
+      background: #f5f5f5;
+    }
+
+    .contenedor {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    button {
+      padding: 15px 25px;
+      font-size: 17px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #1a73e8;
+      color: white;
+    }
+
+    #continuar {
+      display: none;
+      margin-top: 20px;
+    }
+
+    #mensaje {
+      margin: 20px 0;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="contenedor">
+
+  <h2>REGISTRO DE COMISIONES</h2>
+
+  <p>
+    Para continuar debes permitir el acceso a tu ubicación.
+  </p>
+
+  <button onclick="obtenerUbicacion()">
+    📍 Obtener ubicación
+  </button>
+
+  <p id="mensaje"></p>
+
+  <button id="continuar" onclick="abrirFormulario()">
+    Continuar al formulario
+  </button>
+
+</div>
+
+<script>
+
+const FORM_URL =
+"https://docs.google.com/forms/d/e/1FAIpQLSd8gUHX3IEWR_p7NSz4r-OXSmrioz6gG1Y5xkYPV3pWrNqlgA/viewform";
+
+const ENTRY_LOCALIZACION = "213315131";
+
+let enlaceFormulario = "";
+
+function obtenerUbicacion() {
+
+  document.getElementById("mensaje").innerHTML =
+    "📍 Obteniendo ubicación...";
+
+  if (!navigator.geolocation) {
+
+    document.getElementById("mensaje").innerHTML =
+      "❌ Este dispositivo no permite obtener ubicación.";
+
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+
+    function(position) {
+
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+      const precision = Math.round(position.coords.accuracy);
+
+      const maps =
+        "https://www.google.com/maps?q=" +
+        lat + "," + lon;
+
+      const localizacion =
+        maps +
+        " | Precisión aproximada: " +
+        precision +
+        " m";
+
+      enlaceFormulario =
+        FORM_URL +
+        "?usp=pp_url" +
+        "&entry." +
+        ENTRY_LOCALIZACION +
+        "=" +
+        encodeURIComponent(localizacion);
+
+      document.getElementById("mensaje").innerHTML =
+        "✅ Ubicación obtenida correctamente.<br>" +
+        "Precisión aproximada: " +
+        precision +
+        " metros.";
+
+      document.getElementById("continuar").style.display =
+        "inline-block";
+    },
+
+    function(error) {
+
+      if (error.code === 1) {
+
+        document.getElementById("mensaje").innerHTML =
+          "❌ Debes permitir el acceso a tu ubicación.";
+
+      } else if (error.code === 2) {
+
+        document.getElementById("mensaje").innerHTML =
+          "❌ No se pudo determinar tu ubicación.";
+
+      } else if (error.code === 3) {
+
+        document.getElementById("mensaje").innerHTML =
+          "❌ Se agotó el tiempo para obtener tu ubicación.";
+
+      } else {
+
+        document.getElementById("mensaje").innerHTML =
+          "❌ Error al obtener la ubicación.";
+      }
+    },
+
+    {
+      enableHighAccuracy: true,
+      timeout: 20000,
+      maximumAge: 0
+    }
+  );
+}
+
+function abrirFormulario() {
+
+  if (enlaceFormulario !== "") {
+    window.location.href = enlaceFormulario;
+  }
+}
+
+</script>
+
+</body>
+</html>
